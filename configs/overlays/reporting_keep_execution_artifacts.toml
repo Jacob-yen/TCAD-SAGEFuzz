@@ -1,0 +1,8 @@
+[reporting]
+coverage_collection = "off"
+emit_execution_json = true
+emit_execution_markdown = true
+delete_successful_iteration_artifacts = false
+delete_successful_run_artifacts = false
+keep_uninteresting_workdirs = false
+write_probe_verification = { enabled = true, max_registers = 8, max_memory_bytes = 16 }

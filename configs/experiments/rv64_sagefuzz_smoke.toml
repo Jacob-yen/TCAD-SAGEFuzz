@@ -1,0 +1,60 @@
+# Single-hart RV64 scalar/vector smoke configuration for Ara or XiangShan.
+# Select the subject with one of the cores_spike_*_single.toml overlays.
+# The generate and exec-generated commands consume testcase_config from this file.
+
+[testcase_config]
+isa_base                   = "Rv64"
+extension_insts_count     = 6
+mem_size                  = 512
+float_extension           = "fd"
+unaligned_access_required = false
+hart_config               = { kind = "single" }
+seed                      = 20260521
+
+[testcase_config.random_config.memory_access_config]
+memory_base_address_range         = [0, 0]
+memory_offset_immediate_range     = [0, 64]
+memory_base_register_number_range = [8, 12]
+
+[testcase_config.random_config.register_operand_config]
+integer_register_number_range        = [13, 20]
+floating_point_register_number_range = [13, 20]
+vector_register_number_range         = [13, 31]
+
+[testcase_config.random_config]
+append_fflags_readback = true
+
+[testcase_config.random_config.csr_selection_config]
+machine_csr_operands_enabled  = true
+floating_csr_operands_enabled = true
+vector_csr_operands_enabled   = false
+
+[testcase_config.extension_inst_scaling]
+multiplier = 0.0
+min_insts  = 6
+max_insts  = 6
+
+[runner]
+mode = "random_diff"
+
+[runner.random_diff]
+max_iterations                      = 1
+enable_reduction                    = false
+minimization_min_history_iterations = 50
+
+[reporting]
+coverage_collection                   = "off"
+emit_execution_json                   = true
+emit_execution_markdown               = true
+delete_successful_iteration_artifacts = false
+delete_successful_run_artifacts       = false
+
+[reporting.write_probe_verification]
+enabled          = false
+max_registers    = 8
+max_memory_bytes = 16
+
+[cores]
+selected                  = ["xiangshan"]
+concurrency               = 1
+execution_timeout_seconds = 300

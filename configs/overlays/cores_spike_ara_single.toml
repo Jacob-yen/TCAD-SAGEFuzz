@@ -1,0 +1,4 @@
+[cores]
+selected                  = ["spike", "ara"]
+concurrency               = 1
+execution_timeout_seconds = 15

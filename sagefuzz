@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+artifact_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+binary="${artifact_root}/target/release/riscv_fuzz_test"
+plugins="${artifact_root}/riscv_fuzz_plugins"
+
+usage() {
+  cat <<'EOF'
+Usage: ./sagefuzz <generate|exec-generated|exec-generated-batch> [options]
+
+The launcher selects the artifact RVV generator automatically.
+Use --config, --overlay, --core, and --run-dir as shown in README.md.
+EOF
+}
+
+case "${1:-}" in
+  -h|--help|"")
+    usage
+    exit 0
+    ;;
+  generate|exec-generated|exec-generated-batch)
+    ;;
+  *)
+    usage >&2
+    exit 2
+    ;;
+esac
+
+for argument in "$@"; do
+  case "${argument}" in
+    --generator|--generator=*)
+      printf 'The generator is fixed by this launcher.\n' >&2
+      exit 2
+      ;;
+  esac
+done
+
+if [[ ! -x "${binary}" ]]; then
+  printf 'Missing %s; build the artifact as described in README.md.\n' "${binary}" >&2
+  exit 1
+fi
+if [[ ! -d "${plugins}" ]]; then
+  printf 'Missing %s; build the three core plugins as described in README.md.\n' "${plugins}" >&2
+  exit 1
+fi
+
+cd "${artifact_root}"
+exec env RISCV_FUZZ_PLUGIN_DIRS="${plugins}" "${binary}" "$@" --generator hardware-tcad

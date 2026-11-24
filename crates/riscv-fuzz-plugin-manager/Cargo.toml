@@ -1,0 +1,14 @@
+[package]
+name = "riscv-fuzz-plugin-manager"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+libloading = "0.8.9"
+riscv-fuzz-plugin-api = { path = "../riscv-fuzz-plugin-api" }
+serde = { version = "1.0.228", features = ["derive"] }
+thiserror = "2.0.17"
+
+[dev-dependencies]
+riscv-instruction.workspace = true
+riscv-instruction-types.workspace = true

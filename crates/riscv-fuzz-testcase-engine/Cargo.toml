@@ -1,0 +1,25 @@
+[package]
+name = "riscv-fuzz-testcase-engine"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+internal-tests = []
+plugin-tests = ["internal-tests"]
+
+[dependencies]
+riscv-fuzz-plugin-api = { path = "../riscv-fuzz-plugin-api" }
+riscv-fuzz-plugin-manager = { path = "../riscv-fuzz-plugin-manager" }
+riscv-fuzz-toolchain = { path = "../riscv-fuzz-toolchain" }
+
+log = "0.4.29"
+rand = "0.9.2"
+riscv-instruction.workspace = true
+riscv-instruction-types.workspace = true
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.148"
+thiserror = "2.0.17"
+toml = "0.9.8"
+
+[dev-dependencies]
+tempfile = "3.24.0"

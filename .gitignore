@@ -1,0 +1,7 @@
+/target/
+/runs/
+/riscv_fuzz_plugins/
+**/__pycache__/
+*.pyc
+*.log
+.DS_Store

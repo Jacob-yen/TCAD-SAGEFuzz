@@ -1,0 +1,19 @@
+[package]
+name = "riscv-fuzz-core-xiangshan"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+log = "0.4.29"
+once_cell = "1.21.3"
+regex = "1.12.2"
+riscv-instruction.workspace = true
+riscv-instruction-types.workspace = true
+serde = { version = "1.0.228", features = ["derive"] }
+thiserror = "2.0.17"
+
+riscv-fuzz-plugin-api = { path = "../../riscv-fuzz-plugin-api" }
+riscv-fuzz-toolchain = { path = "../../riscv-fuzz-toolchain" }

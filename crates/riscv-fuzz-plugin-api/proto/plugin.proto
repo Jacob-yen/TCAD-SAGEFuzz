@@ -1,0 +1,195 @@
+syntax = "proto3";
+
+package riscv_fuzz.plugin.v1;
+
+enum IsaBase {
+  ISA_BASE_UNSPECIFIED = 0;
+  ISA_BASE_RV32 = 1;
+  ISA_BASE_RV64 = 2;
+}
+
+enum CoverageMode {
+  COVERAGE_MODE_UNSPECIFIED = 0;
+  COVERAGE_MODE_OFF = 1;
+  COVERAGE_MODE_FULL = 2;
+  COVERAGE_MODE_LIGHT = 3;
+}
+
+enum PluginDoctorStatus {
+  PLUGIN_DOCTOR_STATUS_UNSPECIFIED = 0;
+  PLUGIN_DOCTOR_STATUS_PASS = 1;
+  PLUGIN_DOCTOR_STATUS_WARN = 2;
+  PLUGIN_DOCTOR_STATUS_FAIL = 3;
+}
+
+enum FloatExtension {
+  FLOAT_EXTENSION_UNSPECIFIED = 0;
+  FLOAT_EXTENSION_NONE = 1;
+  FLOAT_EXTENSION_F = 2;
+  FLOAT_EXTENSION_FD = 3;
+}
+
+message ExtensionSet {
+  IsaBase isa_base = 1;
+  repeated string names = 2;
+}
+
+message UnalignedAccessSupport {
+  bool aligned = 1;
+  bool unaligned = 2;
+}
+
+message CoverageModeSupport {
+  bool off = 1;
+  bool light = 2;
+  bool full = 3;
+}
+
+message IsaExecutionProfile {
+  bool supported = 1;
+  bool supports_dual_hart = 2;
+  CoverageModeSupport coverage_mode_support = 3;
+  UnalignedAccessSupport unaligned_access_support = 4;
+  ExtensionSet extensions = 5;
+}
+
+message IsaExecutionProfileMap {
+  IsaExecutionProfile rv32 = 1;
+  IsaExecutionProfile rv64 = 2;
+}
+
+message ProgramMemoryRange {
+  uint64 start = 1;
+  uint64 end = 2;
+}
+
+message CorePluginMetadata {
+  string core_id = 1;
+  IsaExecutionProfileMap isa_profiles = 2;
+  ProgramMemoryRange program_mem_range = 3;
+}
+
+message PluginMetadataRecord {
+  CorePluginMetadata core_metadata = 1;
+  string linker_script = 2;
+  PluginDoctorReport doctor_report = 3;
+}
+
+message PluginDoctorCheck {
+  string label = 1;
+  optional string env_var = 2;
+  PluginDoctorStatus status = 3;
+  string value = 4;
+  string note = 5;
+}
+
+message PluginDoctorReport {
+  string plugin_id = 1;
+  repeated PluginDoctorCheck checks = 2;
+}
+
+message BuildAsmRequest {
+  IsaBase isa_base = 1;
+  repeated HartExecutionInput hart_inputs = 2;
+  uint32 typed_payload_schema_version = 3;
+}
+
+message BuildAsmResponse {
+  string asm = 1;
+}
+
+message HartExecutionInput {
+  uint32 hart_id = 1;
+  bytes typed_payload = 2;
+}
+
+message ExecuteRequest {
+  string run_root = 1;
+  IsaBase isa_base = 2;
+  repeated HartExecutionInput hart_inputs = 3;
+  ExtensionSet extension_override = 4;
+  bool allow_unaligned = 5;
+  CoverageMode coverage_mode = 6;
+  optional FloatExtension float_mode_override = 7;
+  uint32 typed_payload_schema_version = 8;
+}
+
+message ExceptionCause {
+  uint64 code = 1;
+  string raw = 2;
+}
+
+message RegisterValue {
+  string name = 1;
+  uint64 value = 2;
+}
+
+message MemValue {
+  uint64 addr = 1;
+  uint32 value = 2;
+}
+
+message HartPerfMetrics {
+  optional uint64 mcycle_start = 1;
+  optional uint64 mcycle_end = 2;
+  optional uint64 minstret_start = 3;
+  optional uint64 minstret_end = 4;
+}
+
+message PerHartPerfMetrics {
+  uint32 hart_id = 1;
+  HartPerfMetrics metrics = 2;
+}
+
+message PerfMetrics {
+  optional uint64 global_cycles = 1;
+  repeated PerHartPerfMetrics per_hart = 2;
+  repeated string notes = 3;
+}
+
+message InstructionTiming {
+  optional uint64 clk_start = 1;
+  optional uint64 clk_end = 2;
+  optional uint64 clk_span = 3;
+}
+
+message TraceInstId {
+  uint32 hart_id = 1;
+  uint64 local_index = 2;
+}
+
+message AsmInstructionExecution {
+  uint64 pc = 1;
+  string instruction = 2;
+  optional string source_annotation = 3;
+  repeated ExceptionCause exceptions = 4;
+  repeated RegisterValue register_writes = 5;
+  repeated MemValue memory_writes = 6;
+  InstructionTiming timing = 7;
+  optional TraceInstId trace_inst_id = 8;
+}
+
+message HartExecutionOutput {
+  uint32 hart_id = 1;
+  repeated AsmInstructionExecution instructions = 2;
+}
+
+message ExecutionOutput {
+  repeated HartExecutionOutput per_hart = 1;
+  string core_id = 2;
+  IsaBase isa_base = 3;
+  PerfMetrics perf = 4;
+}
+
+message StreamingInstructionRowEvent {
+  uint32 hart_id = 1;
+  AsmInstructionExecution instruction = 2;
+}
+
+message StreamingInstructionEvent {
+  oneof kind {
+    StreamingInstructionRowEvent instruction = 1;
+    PerfMetrics completed = 2;
+    string failed = 3;
+  }
+}

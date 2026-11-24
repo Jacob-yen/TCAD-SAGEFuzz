@@ -1,0 +1,14 @@
+# Reporting overlay: enable light coverage collection on every diff
+# iteration. Layers on top of any random_diff / diff_against_spike base
+# experiment to add coverage feedback to the run.
+[reporting]
+coverage_collection                   = "light"
+emit_execution_json                   = false
+emit_execution_markdown               = false
+delete_successful_iteration_artifacts = true
+delete_successful_run_artifacts       = true
+
+[reporting.write_probe_verification]
+enabled                               = true
+max_registers                         = 8
+max_memory_bytes                      = 16

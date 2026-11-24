@@ -1,0 +1,4 @@
+[cores]
+selected    = ["spike", "xiangshan"]
+concurrency = 1
+execution_timeout_seconds = 180
